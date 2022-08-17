@@ -3,8 +3,8 @@ from torch.utils.data import Dataset
 class EsperantoDataset(Dataset):
     def __init__(self, evaluate: bool = False):
         tokenizer = ByteLevelBPETokenizer(
-            "./models/EsperBERTo-small/vocab.json",
-            "./models/EsperBERTo-small/merges.txt",
+            "./models/sampletoken-vocab.json",
+            "./models/sampletoken-merges.txt",
         )
         tokenizer._tokenizer.post_processor = BertProcessing(
             ("</s>", tokenizer.token_to_id("</s>")),
