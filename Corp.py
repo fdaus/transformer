@@ -1,9 +1,14 @@
 #! /bin/env python
+from timeit import timeit
 import pandas as pd
-import glob, os
+from pathlib import Path
+from datetime import datetime
 
-source = "/mnt/c/Users/iotfs/OneDrive - Universiti Malaya/dataset/Dataset_csv/unsw/nfstream/split/output_done_8.csv"
-outputPath = "/mnt/c/Users/iotfs/OneDrive - Universiti Malaya/dataset/Dataset_csv/unsw/nfstream/corpus/unsw_corpus8.csv"
+starttime=datetime.now()
+paths = [str(x) for x in Path("/mnt/c/Users/iotfs/OneDrive - Universiti Malaya/dataset/Dataset_csv/unsw/nfstream/split/").glob("**/*.csv")]
+
+#source = "/mnt/c/Users/iotfs/OneDrive - Universiti Malaya/dataset/Dataset_csv/unsw/nfstream/split/output_done_8.csv"
+outputPath = "/mnt/c/Users/iotfs/OneDrive - Universiti Malaya/dataset/Dataset_csv/unsw/nfstream/corpus/"
 
 cname=['id', 'expiration_id','src_ip', 'src_mac', 'src_oui','sp',
        'dst_ip', 'dst_mac', 'dst_oui','dp', 'ptcl', 'ipv', 
@@ -35,12 +40,24 @@ cname=['id', 'expiration_id','src_ip', 'src_mac', 'src_oui','sp',
        'req_server_name', 'client_fingerprint', 'server_fingerprint',
        'user_agent', 'content_type', 'device', 'label']
 
-df = pd.read_csv(open(source,'r'),delimiter=',',header=None,names=cname)
+i=1
+for y in paths:
+       df = pd.read_csv(open(y,'r'),delimiter=',',header=None,names=cname)
 
-df=df.drop(columns=["id","expiration_id","src_ip","src_mac","src_oui","dst_ip","dst_mac","dst_oui","application_is_guessed","bidirectional_first_seen_ms","bidirectional_last_seen_ms","src2dst_first_seen_ms","src2dst_last_seen_ms","dst2src_first_seen_ms","dst2src_last_seen_ms","device","label"])
+       df = df.drop(columns=[
+              "id","expiration_id","src_ip","src_mac","src_oui","dst_ip",
+              "dst_mac","dst_oui","application_is_guessed","bidirectional_first_seen_ms",
+              "bidirectional_last_seen_ms","src2dst_first_seen_ms","src2dst_last_seen_ms",
+              "dst2src_first_seen_ms","dst2src_last_seen_ms","user_agent","device","label"
+              ])
 
-df=df.round(decimals=2)
-print("start tagging...")
-df1=df.astype(str).apply(lambda x : x.name+':'+x)
-df1.to_csv(outputPath, index=False, sep=' ',header=False)
-print("Done.")
+       df=df.round(decimals=2)
+
+       print("start tagging...",y)
+       df1 = df.astype(str).apply(lambda x : x.name+':'+x)
+       
+       output=outputPath+"unsw_corpus_"+str(i)+".csv"
+       df1.to_csv(output, index=False, sep=' ',header=False)
+       print("Done: ",y)
+       i=i+1
+print("Conversion Complete. Time:",datetime.now()-starttime)
